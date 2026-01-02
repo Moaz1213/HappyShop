@@ -16,6 +16,13 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import java.io.IOException;
 
+import ci553.happyshop.auth.AuthService;
+import ci553.happyshop.auth.User;
+import ci553.happyshop.auth.Role;
+
+import java.util.Optional;
+import java.util.Scanner;
+
 /**
  * The Main JavaFX application class. The Main class is executable directly.
  * It serves as a foundation for UI logic and starts all the clients (UI) in one go.
@@ -42,22 +49,46 @@ public class Main extends Application {
     //starts the system
     @Override
     public void start(Stage window) throws IOException {
-        startCustomerClient();
-        startPickerClient();
-        startOrderTracker();
 
-        startCustomerClient();
-        startPickerClient();
-        startOrderTracker();
+        User loggedInUser = promptLogin();
 
-        // Initializes the order map for the OrderHub. This must be called after starting the observer clients
-        // (such as OrderTracker and Picker clients) to ensure they are properly registered for receiving updates.
-        initializeOrderMap();
-
-        startWarehouseClient();
-        startWarehouseClient();
+        if (loggedInUser.getRole() == Role.CUSTOMER) {
+            startCustomerClient();
+            startOrderTracker();
+            initializeOrderMap();
+        }
+        else if (loggedInUser.getRole() == Role.PICKER) {
+            startPickerClient();
+            startOrderTracker();
+            initializeOrderMap();
+        }
+        else if (loggedInUser.getRole() == Role.WAREHOUSE) {
+            startWarehouseClient();
+        }
 
         startEmergencyExit();
+    }
+
+    private User promptLogin() {
+        AuthService authService = new AuthService();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("=== HappyShop Login ===");
+        System.out.print("Username: ");
+        String username = scanner.nextLine();
+
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        Optional<User> userOpt = authService.login(username, password);
+
+        if (userOpt.isEmpty()) {
+            System.out.println("Login failed. Try again (or use: cust1 / 1234).");
+            return promptLogin();
+        }
+
+        System.out.println("Login success. Role = " + userOpt.get().getRole());
+        return userOpt.get();
     }
 
     /** The customer GUI -search prodduct, add to trolley, cancel/submit trolley, view receipt
