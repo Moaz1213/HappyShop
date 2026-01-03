@@ -83,7 +83,7 @@ public class Main extends Application {
         Optional<User> userOpt = authService.login(username, password);
 
         if (userOpt.isEmpty()) {
-            System.out.println("Login failed. Try again (or use: cust1 / 1234).");
+            System.out.println("Invalid username or password Please try again.");
             return promptLogin();
         }
 
