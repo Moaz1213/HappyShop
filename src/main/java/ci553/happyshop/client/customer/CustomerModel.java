@@ -37,6 +37,7 @@ public class CustomerModel {
     //SELECT productID, description, image, unitPrice,inStock quantity
     void search() throws SQLException {
         String productId = cusView.tfId.getText().trim();
+        String productName = cusView.tfName.getText().trim();
         if(!productId.isEmpty()){
             theProduct = databaseRW.searchByProductId(productId); //search database
             if(theProduct != null && theProduct.getStockQuantity()>0){
@@ -47,21 +48,45 @@ public class CustomerModel {
                 String baseInfo = String.format("Product_Id: %s\n%s,\nPrice: £%.2f", productId, description, unitPrice);
                 String quantityInfo = stock < 100 ? String.format("\n%d units left.", stock) : "";
                 displayLaSearchResult = baseInfo + quantityInfo;
-                System.out.println(displayLaSearchResult);
-            }
-            else{
-                theProduct=null;
+
+            } else if (theProduct != null) {
+                displayLaSearchResult = "Product " + productId + " is out of stock.";
+                theProduct = null;
+            } else {
                 displayLaSearchResult = "No Product was found with ID " + productId;
-                System.out.println("No Product was found with ID " + productId);
             }
-        }else{
-            theProduct=null;
-            displayLaSearchResult = "Please type ProductID";
-            System.out.println("Please type ProductID.");
+
+            updateView();
+            return;
         }
+        if (!productName.isEmpty()) {
+            var list = databaseRW.searchProduct(productName);
+
+            if (list == null || list.isEmpty()) {
+                theProduct = null;
+                displayLaSearchResult = "No Product found with name: " + productName;
+            } else if (list.size() == 1) {
+                theProduct = list.get(0);
+                displayLaSearchResult = "Found: " + theProduct.getProductId() + " - " + theProduct.getProductDescription();
+            } else {
+                theProduct = null;
+                StringBuilder sb = new StringBuilder("Multiple products found. Please search by ID:\n");
+                for (var p : list) {
+                    sb.append("• ").append(p.getProductId())
+                            .append(" - ").append(p.getProductDescription())
+                            .append("\n");
+                }
+                displayLaSearchResult = sb.toString();
+            }
+
+            updateView();
+            return;
+        }
+
+        theProduct = null;
+        displayLaSearchResult = "Please type ProductID or Name";
         updateView();
     }
-
     void addToTrolley(){
         if(theProduct!= null){
 
