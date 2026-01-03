@@ -8,3 +8,4 @@ public class Sound {
         Toolkit.getDefaultToolkit().beep();
     }
 }
+

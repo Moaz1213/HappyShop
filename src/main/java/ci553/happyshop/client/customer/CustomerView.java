@@ -218,3 +218,4 @@ public class CustomerView  {
                   viewWindow.getWidth(), viewWindow.getHeight());
     }
 }
+
