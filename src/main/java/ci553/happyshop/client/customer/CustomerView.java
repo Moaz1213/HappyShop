@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import ci553.happyshop.utility.Sound;
 
 /**
  * The CustomerView is separated into two sections by a line :
@@ -173,6 +174,7 @@ public class CustomerView  {
 
     private void buttonClicked(ActionEvent event) {
         try{
+            Sound.playClickSound();
             Button btn = (Button)event.getSource();
             String action = btn.getText();
             if(action.equals("Add to Trolley")){
@@ -216,3 +218,4 @@ public class CustomerView  {
                   viewWindow.getWidth(), viewWindow.getHeight());
     }
 }
+
